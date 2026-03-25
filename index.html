@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>HOWZAT! - Hand Cricket Arena</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@700;800;900&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "surface-container-highest": "#dbdde0",
+                "inverse-surface": "#0c0e10",
+                "surface-tint": "#006a3b",
+                "primary-fixed": "#9df6b9",
+                "on-tertiary-fixed-variant": "#665500",
+                "on-tertiary-container": "#5b4b00",
+                "on-tertiary-fixed": "#453900",
+                "on-secondary-fixed-variant": "#a5021e",
+                "on-surface": "#2d2f31",
+                "secondary-container": "#ffc3c0",
+                "inverse-on-surface": "#9c9d9f",
+                "surface-variant": "#dbdde0",
+                "primary": "#006a3b",
+                "on-secondary-fixed": "#6f0011",
+                "surface-container-high": "#e1e2e6",
+                "on-secondary": "#ffefee",
+                "on-error": "#ffefee",
+                "primary-fixed-dim": "#8fe7ac",
+                "tertiary": "#6c5a00",
+                "inverse-primary": "#9df6b9",
+                "secondary-dim": "#a3001e",
+                "secondary": "#b51628",
+                "on-primary": "#ccffd7",
+                "error-dim": "#9f0519",
+                "outline-variant": "#acadaf",
+                "error": "#b31b25",
+                "on-primary-fixed": "#004a27",
+                "tertiary-fixed-dim": "#efc900",
+                "primary-dim": "#005c32",
+                "on-error-container": "#570008",
+                "surface-container": "#e7e8eb",
+                "surface-container-low": "#f0f0f3",
+                "surface-container-lowest": "#ffffff",
+                "background": "#f6f6f9",
+                "on-primary-fixed-variant": "#006a3b",
+                "on-surface-variant": "#5a5c5e",
+                "on-primary-container": "#005f34",
+                "on-tertiary": "#fff2cd",
+                "surface-bright": "#f6f6f9",
+                "error-container": "#fb5151",
+                "on-secondary-container": "#94001a",
+                "surface": "#f6f6f9",
+                "surface-dim": "#d2d4d8",
+                "tertiary-dim": "#5e4e00",
+                "tertiary-container": "#ffd709",
+                "secondary-fixed": "#ffc3c0",
+                "on-background": "#2d2f31",
+                "tertiary-fixed": "#ffd709",
+                "secondary-fixed-dim": "#ffafac",
+                "outline": "#757779",
+                "primary-container": "#9df6b9"
+              },
+              fontFamily: {
+                "headline": ["Epilogue"],
+                "body": ["Plus Jakarta Sans"],
+                "label": ["Plus Jakarta Sans"]
+              },
+              borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+            },
+          },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .perspective-1000 { perspective: 1000px; }
+        .rotate-y-180 { transform: rotateY(180deg); }
+        .backface-hidden { backface-visibility: hidden; }
+        .preserve-3d { transform-style: preserve-3d; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Visual Feedback for Selections */
+        .difficulty-btn.active { border-width: 4px !important; border-color: #006a3b !important; background-color: rgba(0, 106, 59, 0.05) !important; }
+        .mode-btn.active { border-width: 4px !important; border-color: #b51628 !important; background-color: rgba(181, 22, 40, 0.05) !important; }
+        .difficulty-btn.active .material-symbols-outlined { color: #006a3b !important; font-variation-settings: 'FILL' 1 !important; }
+        .mode-btn.active .material-symbols-outlined { color: #b51628 !important; font-variation-settings: 'FILL' 1 !important; }
+        
+        button:active { transform: scale(0.98); }
+    </style>
+</head>
+<body class="bg-background font-body text-on-surface min-h-screen flex flex-col">
+<!-- TopAppBar -->
+<header class="bg-emerald-900 flex justify-between items-center w-full px-6 h-16 sticky top-0 z-50 shadow-[0_4px_0_0_rgba(0,0,0,0.25)]">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-emerald-500" data-icon="sports_cricket">sports_cricket</span>
+<h1 class="font-headline font-black uppercase tracking-tighter text-2xl text-yellow-500 italic">HOWZAT!</h1>
+</div>
+<button class="text-emerald-100">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+</header>
+<main class="flex-grow flex flex-col items-center p-4 md:p-8 max-w-4xl mx-auto w-full pb-32">
+<!-- SECTION 1: SELECTION STATE -->
+<section class="w-full flex flex-col gap-8" id="selection-screen">
+<div class="text-center">
+<h2 class="font-headline text-4xl font-extrabold text-primary mb-2">PICK YOUR PLAY</h2>
+<p class="text-on-surface-variant">Customize your stadium experience</p>
+</div>
+<div class="grid md:grid-cols-2 gap-6">
+<!-- Difficulty Selection -->
+<div class="bg-surface-container-low p-6 rounded-lg flex flex-col gap-4">
+<h3 class="font-headline text-xl font-bold uppercase tracking-tight text-primary-dim">Opponent AI</h3>
+<div class="flex flex-col gap-3">
+<button class="difficulty-btn group relative overflow-hidden bg-surface-container-lowest p-4 rounded-lg flex items-center justify-between border-2 border-transparent hover:border-primary transition-all" onclick="setDifficulty('easy')">
+<div class="text-left">
+<p class="font-bold text-lg uppercase">Rookie</p>
+<p class="text-xs text-on-surface-variant">Bot plays random numbers</p>
+</div>
+<span class="material-symbols-outlined text-primary group-[.active]:text-yellow-500" data-icon="poker_chip">poker_chip</span>
+</button>
+<button class="difficulty-btn group active relative overflow-hidden bg-surface-container-lowest p-4 rounded-lg flex items-center justify-between border-2 border-primary transition-all border-4 bg-primary/5" onclick="setDifficulty('medium')">
+<div class="text-left">
+<p class="font-bold text-lg uppercase">Pro</p>
+<p class="text-xs text-on-surface-variant">Tracks patterns (70% accuracy)</p>
+</div>
+<span class="material-symbols-outlined text-primary" data-icon="psychology">psychology</span>
+</button>
+<button class="difficulty-btn group relative overflow-hidden bg-surface-container-lowest p-4 rounded-lg flex items-center justify-between border-2 border-transparent hover:border-primary transition-all" onclick="setDifficulty('hard')">
+<div class="text-left">
+<div class="flex items-center gap-2">
+<p class="font-bold text-lg uppercase">LEGEND</p>
+<span class="bg-red-600 text-[8px] text-white px-1.5 py-0.5 rounded-full font-black animate-pulse">90% ACCURACY</span>
+</div>
+<p class="text-xs text-on-surface-variant">Elite prediction. A true challenge.</p>
+</div>
+<span class="material-symbols-outlined text-primary" data-icon="bolt">bolt</span>
+</button>
+</div>
+</div>
+<!-- Mode Selection -->
+<div class="bg-surface-container-low p-6 rounded-lg flex flex-col gap-4">
+<h3 class="font-headline text-xl font-bold uppercase tracking-tight text-secondary">Match Rules</h3>
+<div class="flex flex-col gap-3">
+<button class="mode-btn group active relative overflow-hidden bg-surface-container-lowest p-4 rounded-lg flex items-center justify-between border-2 border-secondary transition-all border-4 bg-secondary/5" onclick="setMode('simple')">
+<div class="text-left">
+<p class="font-bold text-lg uppercase">Classic</p>
+<p class="text-xs text-on-surface-variant">Match = OUT. Standard scoring.</p>
+</div>
+<span class="material-symbols-outlined text-secondary" data-icon="sports_handball">sports_handball</span>
+</button>
+<button class="mode-btn group relative overflow-hidden bg-surface-container-lowest p-4 rounded-lg flex items-center justify-between border-2 border-transparent hover:border-secondary transition-all" onclick="setMode('crazy')">
+<div class="text-left">
+<p class="font-bold text-lg uppercase">Crazy Squares</p>
+<p class="text-xs text-on-surface-variant">Match = Score^2. Neighbors = OUT.</p>
+</div>
+<span class="material-symbols-outlined text-secondary" data-icon="cyclone">cyclone</span>
+</button>
+</div>
+</div>
+</div>
+<button class="w-full bg-primary text-on-primary font-headline text-2xl py-6 rounded-lg shadow-[0_4px_0_0_#005c32] hover:translate-y-[-2px] hover:shadow-[0_6px_0_0_#005c32] active:translate-y-[2px] active:shadow-none transition-all uppercase tracking-widest focus:ring-4 focus:ring-yellow-400" onclick="goToToss()">
+                Enter Arena
+            </button>
+</section>
+<!-- SECTION 2: TOSS STATE -->
+<section class="hidden w-full max-w-md flex flex-col gap-12 items-center text-center" id="toss-screen">
+<h2 class="font-headline text-4xl font-black text-primary italic">THE TOSS</h2>
+<div class="w-48 h-48 perspective-1000 transition-transform duration-1000 preserve-3d relative cursor-pointer" id="coin">
+<div class="absolute inset-0 bg-tertiary rounded-full border-8 border-tertiary-container flex items-center justify-center backface-hidden shadow-xl" id="coin-front">
+<span class="font-headline text-6xl text-white">H</span>
+</div>
+<div class="absolute inset-0 bg-secondary rounded-full border-8 border-secondary-container flex items-center justify-center backface-hidden rotate-y-180 shadow-xl" id="coin-back">
+<span class="font-headline text-6xl text-white">T</span>
+</div>
+</div>
+<div class="flex flex-col gap-6 w-full" id="toss-controls">
+<p class="text-on-surface-variant font-bold uppercase tracking-widest">Call it in the air</p>
+<div class="flex gap-4">
+<button class="flex-1 bg-surface-container-highest p-4 rounded-lg font-headline text-xl hover:bg-tertiary-container transition-colors" onclick="handleToss('heads')">HEADS</button>
+<button class="flex-1 bg-surface-container-highest p-4 rounded-lg font-headline text-xl hover:bg-secondary-container transition-colors" onclick="handleToss('tails')">TAILS</button>
+</div>
+</div>
+<div class="hidden flex flex-col gap-6 w-full" id="toss-choice">
+<p class="text-primary font-black text-2xl uppercase">YOU WON THE TOSS!</p>
+<div class="flex gap-4">
+<button class="flex-1 bg-primary text-on-primary p-4 rounded-lg font-headline text-xl" onclick="startGame('bat')">BAT FIRST</button>
+<button class="flex-1 bg-secondary text-on-secondary p-4 rounded-lg font-headline text-xl" onclick="startGame('ball')">BOWL FIRST</button>
+</div>
+</div>
+</section>
+<!-- SECTION 3: ARENA STATE -->
+<section class="hidden w-full flex flex-col gap-4" id="arena-screen">
+<!-- Scoreboard -->
+<div class="bg-emerald-900 rounded-lg p-5 text-white shadow-2xl relative overflow-hidden">
+<div class="flex justify-between items-start relative z-10">
+<div class="flex flex-col">
+<span class="text-emerald-400 font-bold uppercase text-[10px] tracking-widest mb-1" id="current-innings-label">1st Innings</span>
+<div class="flex items-baseline gap-2">
+<span class="font-headline text-6xl font-black" id="score-display">0</span>
+<span class="font-headline text-3xl text-emerald-300">/ <span id="wickets-display">0</span></span>
+</div>
+</div>
+<div class="text-right flex flex-col items-end">
+<div class="bg-white/10 px-3 py-1 rounded-full mb-3">
+<p class="text-xs font-bold text-emerald-300 uppercase tracking-tighter">Wickets: <span class="text-white" id="wicket-counter-text">0/3</span></p>
+</div>
+<p class="text-yellow-400 font-black text-lg" id="target-container">TARGET: <span id="target-display">--</span></p>
+<p class="text-emerald-100 font-bold text-sm">OVERS: <span id="overs-display">0.0</span></p>
+</div>
+</div>
+<div class="flex justify-between items-center bg-white/10 backdrop-blur-md p-3 rounded-xl border border-white/5 relative z-10 mt-4">
+<div class="flex flex-col items-center">
+<span class="text-[10px] uppercase font-bold text-emerald-300">You</span>
+<div class="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center font-headline text-2xl mt-1 border-2 border-white/10" id="player-gesture-box">?</div>
+</div>
+<div class="flex flex-col items-center flex-1">
+<div class="bg-yellow-400 text-emerald-900 px-3 py-1 rounded-full font-black text-[10px] uppercase tracking-tighter shadow-lg" id="match-status">READY</div>
+</div>
+<div class="flex flex-col items-center">
+<span class="text-[10px] uppercase font-bold text-emerald-300">Bot</span>
+<div class="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center font-headline text-2xl mt-1 border-2 border-white/10" id="bot-gesture-box">?</div>
+</div>
+</div>
+</div>
+<!-- Hand Gestures Grid -->
+<div class="bg-surface-container-low p-4 rounded-lg">
+<div class="grid grid-cols-5 gap-2">
+<button class="gesture-btn h-12 rounded-lg bg-surface-container-lowest font-headline text-xl border-b-4 border-surface-container-highest active:border-b-0 active:translate-y-[2px] transition-all" onclick="playTurn(1)">1</button>
+<button class="gesture-btn h-12 rounded-lg bg-surface-container-lowest font-headline text-xl border-b-4 border-surface-container-highest active:border-b-0 active:translate-y-[2px] transition-all" onclick="playTurn(2)">2</button>
+<button class="gesture-btn h-12 rounded-lg bg-surface-container-lowest font-headline text-xl border-b-4 border-surface-container-highest active:border-b-0 active:translate-y-[2px] transition-all" onclick="playTurn(3)">3</button>
+<button class="gesture-btn h-12 rounded-lg bg-surface-container-lowest font-headline text-xl border-b-4 border-surface-container-highest active:border-b-0 active:translate-y-[2px] transition-all" onclick="playTurn(4)">4</button>
+<button class="gesture-btn h-12 rounded-lg bg-surface-container-lowest font-headline text-xl border-b-4 border-surface-container-highest active:border-b-0 active:translate-y-[2px] transition-all" onclick="playTurn(5)">5</button>
+<button class="gesture-btn h-12 rounded-lg bg-surface-container-lowest font-headline text-xl border-b-4 border-surface-container-highest active:border-b-0 active:translate-y-[2px] transition-all" onclick="playTurn(6)">6</button>
+<button class="gesture-btn h-12 rounded-lg bg-surface-container-lowest font-headline text-xl border-b-4 border-surface-container-highest active:border-b-0 active:translate-y-[2px] transition-all" onclick="playTurn(7)">7</button>
+<button class="gesture-btn h-12 rounded-lg bg-surface-container-lowest font-headline text-xl border-b-4 border-surface-container-highest active:border-b-0 active:translate-y-[2px] transition-all" onclick="playTurn(8)">8</button>
+<button class="gesture-btn h-12 rounded-lg bg-surface-container-lowest font-headline text-xl border-b-4 border-surface-container-highest active:border-b-0 active:translate-y-[2px] transition-all" onclick="playTurn(9)">9</button>
+<button class="gesture-btn h-12 rounded-lg bg-surface-container-lowest font-headline text-xl border-b-4 border-surface-container-highest active:border-b-0 active:translate-y-[2px] transition-all" onclick="playTurn(10)">10</button>
+</div>
+</div>
+<!-- Recent Balls -->
+<div class="flex gap-2 overflow-x-auto pb-2 no-scrollbar" id="recent-balls"></div>
+</section>
+<!-- SECTION 4: RESULTS STATE -->
+<section class="hidden w-full flex flex-col items-center text-center gap-8 py-12" id="results-screen">
+<div id="result-animation">
+<div class="text-[120px] mb-4" id="result-emoji">🏆</div>
+</div>
+<div class="flex flex-col gap-2">
+<h2 class="font-headline text-6xl font-black italic leading-none" id="result-headline">HURRAHH!</h2>
+<p class="text-xl font-bold text-on-surface-variant uppercase tracking-widest" id="result-subtext">You dominated the field</p>
+</div>
+<div class="bg-surface-container rounded-lg p-8 w-full max-w-sm flex flex-col gap-4 shadow-xl">
+<div class="flex justify-between border-b border-outline-variant pb-2">
+<span class="font-bold">Final Score</span>
+<span class="font-black text-primary" id="final-score">145/2</span>
+</div>
+<div class="flex justify-between">
+<span class="font-bold">Innings Overs</span>
+<span class="font-black text-primary" id="final-overs">4.2</span>
+</div>
+</div>
+<button class="bg-secondary text-on-secondary font-headline text-xl px-12 py-4 rounded-full shadow-lg hover:scale-105 active:scale-95 transition-all uppercase tracking-tighter" onclick="location.reload()">
+                Play Again
+            </button>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-end pb-6 px-4 bg-white/10 backdrop-blur-xl rounded-t-[2.5rem] shadow-[0_-8px_40px_rgba(0,0,0,0.12)]">
+<button class="flex flex-col items-center justify-center bg-yellow-400 text-emerald-900 rounded-full px-6 py-2 mb-2 scale-110 shadow-lg font-bold text-[10px] uppercase">
+<span class="material-symbols-outlined" data-icon="videogame_asset">videogame_asset</span>
+<span>Play</span>
+</button>
+<button class="flex flex-col items-center justify-center text-emerald-50 px-4 py-2 font-bold text-[10px] uppercase opacity-50">
+<span class="material-symbols-outlined" data-icon="leaderboard">leaderboard</span>
+<span>Stats</span>
+</button>
+<button class="flex flex-col items-center justify-center text-emerald-50 px-4 py-2 font-bold text-[10px] uppercase opacity-50">
+<span class="material-symbols-outlined" data-icon="groups">groups</span>
+<span>Teams</span>
+</button>
+<button class="flex flex-col items-center justify-center text-emerald-50 px-4 py-2 font-bold text-[10px] uppercase opacity-50">
+<span class="material-symbols-outlined" data-icon="menu_book">menu_book</span>
+<span>Rules</span>
+</button>
+</nav>
+<script>
+        // --- GAME ENGINE STATE ---
+        const gameState = {
+            difficulty: 'medium',
+            mode: 'simple',
+            phase: 'selection',
+            innings: 1,
+            isPlayerBatting: true,
+            score: 0,
+            wickets: 0,
+            balls: 0,
+            target: null,
+            maxWickets: 3,
+            userHistory: [],
+            gameActive: true
+        };
+
+        // --- UI HELPERS ---
+        function switchScreen(screenId) {
+            document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+            document.getElementById(screenId).classList.remove('hidden');
+            gameState.phase = screenId.replace('-screen', '');
+            window.scrollTo(0, 0);
+        }
+
+        function setDifficulty(lvl) {
+            gameState.difficulty = lvl;
+            document.querySelectorAll('.difficulty-btn').forEach(btn => {
+                btn.classList.remove('active', 'border-primary', 'border-4', 'bg-primary/5');
+                btn.classList.add('border-transparent');
+            });
+            const activeBtn = event.currentTarget;
+            activeBtn.classList.add('active', 'border-primary', 'border-4', 'bg-primary/5');
+            activeBtn.classList.remove('border-transparent');
+        }
+
+        function setMode(m) {
+            gameState.mode = m;
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.remove('active', 'border-secondary', 'border-4', 'bg-secondary/5');
+                btn.classList.add('border-transparent');
+            });
+            const activeBtn = event.currentTarget;
+            activeBtn.classList.add('active', 'border-secondary', 'border-4', 'bg-secondary/5');
+            activeBtn.classList.remove('border-transparent');
+        }
+
+        function goToToss() { switchScreen('toss-screen'); }
+
+        function handleToss(call) {
+            const coin = document.getElementById('coin');
+            const result = Math.random() < 0.5 ? 'heads' : 'tails';
+            const rotations = result === 'heads' ? 1800 : 1980;
+            coin.style.transform = `rotateY(${rotations}deg)`;
+            
+            setTimeout(() => {
+                document.getElementById('toss-controls').classList.add('hidden');
+                if (result === call) {
+                    document.getElementById('toss-choice').classList.remove('hidden');
+                } else {
+                    startGame(Math.random() < 0.5 ? 'bat' : 'ball');
+                }
+            }, 1200);
+        }
+
+        function startGame(playerRole) {
+            gameState.isPlayerBatting = playerRole === 'bat';
+            switchScreen('arena-screen');
+            updateScoreboard();
+        }
+
+        // --- CORE GAME LOOP ---
+        function playTurn(userMove) {
+            if (!gameState.gameActive) return;
+
+            let botMove;
+            const history = gameState.userHistory;
+            const len = history.length;
+
+            if (gameState.difficulty === 'hard') {
+                // LEGEND BOT: 90% Accurate Prediction
+                const isAccurate = Math.random() < 0.9;
+                
+                if (isAccurate) {
+                    if (gameState.isPlayerBatting) {
+                        botMove = userMove; // Force out
+                    } else {
+                        // Bot is batting: avoid matching player to maximize runs/stay in
+                        // It picks the number that player is NOT picking.
+                        botMove = userMove === 10 ? 9 : 10; 
+                    }
+                } else {
+                    botMove = Math.floor(Math.random() * 10) + 1;
+                }
+            } else if (gameState.difficulty === 'medium') {
+                const isAccurate = Math.random() < 0.7;
+                if (isAccurate && len > 0) {
+                    botMove = history[Math.floor(Math.random() * len)];
+                } else {
+                    botMove = Math.floor(Math.random() * 10) + 1;
+                }
+            } else {
+                botMove = Math.floor(Math.random() * 10) + 1;
+            }
+
+            gameState.userHistory.push(userMove);
+            
+            const statusEl = document.getElementById('match-status');
+            const pBox = document.getElementById('player-gesture-box');
+            const bBox = document.getElementById('bot-gesture-box');
+            
+            pBox.textContent = userMove;
+            bBox.textContent = botMove;
+            
+            let isOut = false;
+            let runEarned = 0;
+
+            if (gameState.mode === 'crazy') {
+                const diff = Math.abs(userMove - botMove);
+                const isNeighbor = (diff === 1) || (userMove === 1 && botMove === 10) || (userMove === 10 && botMove === 1);
+                
+                if (userMove === botMove) {
+                    runEarned = Math.pow(userMove, 2);
+                    statusEl.textContent = "CRAZY SQUARE!";
+                    statusEl.className = "bg-purple-600 text-white px-3 py-1 rounded-full font-black text-[10px] uppercase tracking-tighter shadow-lg";
+                } else if (isNeighbor) {
+                    isOut = true;
+                } else {
+                    runEarned = gameState.isPlayerBatting ? userMove : botMove;
+                }
+            } else {
+                if (userMove === botMove) {
+                    isOut = true;
+                } else {
+                    runEarned = gameState.isPlayerBatting ? userMove : botMove;
+                }
+            }
+
+            if (isOut) {
+                gameState.wickets++;
+                statusEl.textContent = "OUT!";
+                statusEl.className = "bg-red-600 text-white px-3 py-1 rounded-full font-black text-[10px] uppercase tracking-tighter shadow-lg";
+            } else {
+                gameState.score += runEarned;
+                statusEl.textContent = `${runEarned} RUNS!`;
+                if(gameState.mode !== 'crazy' || userMove !== botMove) {
+                    statusEl.className = "bg-yellow-400 text-emerald-900 px-3 py-1 rounded-full font-black text-[10px] uppercase tracking-tighter shadow-lg";
+                }
+            }
+
+            gameState.balls++;
+            addRecentBall(isOut ? 'W' : (runEarned > 10 ? '!' : runEarned));
+            
+            const isTargetReached = (gameState.target && gameState.score >= gameState.target);
+            const isAllOut = (gameState.wickets >= gameState.maxWickets);
+
+            if (isAllOut || isTargetReached) {
+                if (gameState.innings === 1) {
+                    setTimeout(() => {
+                        gameState.target = gameState.score + 1;
+                        gameState.score = 0;
+                        gameState.wickets = 0;
+                        gameState.balls = 0;
+                        gameState.innings = 2;
+                        gameState.isPlayerBatting = !gameState.isPlayerBatting;
+                        document.getElementById('recent-balls').innerHTML = '';
+                        alert(`Innings Over! Target for ${gameState.isPlayerBatting ? 'You' : 'Bot'}: ${gameState.target}`);
+                        updateScoreboard();
+                    }, 500);
+                } else {
+                    setTimeout(() => endGame(), 500);
+                }
+            } else {
+                updateScoreboard();
+            }
+        }
+
+        function addRecentBall(val) {
+            const container = document.getElementById('recent-balls');
+            const ball = document.createElement('div');
+            ball.className = `min-w-[36px] h-9 rounded-full flex items-center justify-center font-bold text-xs shadow-sm transition-all ${val === 'W' ? 'bg-secondary text-white' : 'bg-surface-container-highest text-on-surface'}`;
+            ball.textContent = val;
+            container.prepend(ball);
+        }
+
+        function updateScoreboard() {
+            document.getElementById('score-display').textContent = gameState.score;
+            document.getElementById('wickets-display').textContent = gameState.wickets;
+            document.getElementById('wicket-counter-text').textContent = `${gameState.wickets}/${gameState.maxWickets}`;
+            document.getElementById('overs-display').textContent = `${Math.floor(gameState.balls/6)}.${gameState.balls%6}`;
+            document.getElementById('current-innings-label').textContent = `${gameState.innings === 1 ? '1st' : '2nd'} Innings - ${gameState.isPlayerBatting ? 'BATTING' : 'BOWLING'}`;
+            if (gameState.target) {
+                document.getElementById('target-display').textContent = gameState.target;
+            }
+        }
+
+        function endGame() {
+            gameState.gameActive = false;
+            switchScreen('results-screen');
+            
+            const playerWon = (gameState.innings === 2 && gameState.isPlayerBatting && gameState.score >= gameState.target) || 
+                              (gameState.innings === 2 && !gameState.isPlayerBatting && gameState.score < gameState.target);
+            
+            const head = document.getElementById('result-headline');
+            const sub = document.getElementById('result-subtext');
+            const emoji = document.getElementById('result-emoji');
+            
+            document.getElementById('final-score').textContent = `${gameState.score}/${gameState.wickets}`;
+            document.getElementById('final-overs').textContent = `${Math.floor(gameState.balls/6)}.${gameState.balls%6}`;
+
+            if (playerWon) {
+                head.textContent = "HURRAHH!";
+                head.className = "font-headline text-6xl font-black text-primary italic leading-none";
+                sub.textContent = "You dominated the field";
+                emoji.textContent = "🏆";
+                confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+            } else {
+                head.textContent = "OH NOOO!";
+                head.className = "font-headline text-6xl font-black text-secondary italic leading-none";
+                sub.textContent = gameState.difficulty === 'hard' ? "The Legend is tough, but beatable!" : "The Bot outsmarted you";
+                emoji.textContent = "💔";
+                document.getElementById('results-screen').classList.add('bg-red-50');
+            }
+        }
+    </script>
+</body></html>
